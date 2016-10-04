@@ -1,0 +1,48 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 24
+    buildToolsVersion "24.0.2" // Note: this version should match the latest build-tools version
+    // that you installed in the SDK manager
+
+    defaultConfig {
+        applicationId "chris.SpotifyTest"
+        minSdkVersion 21
+        targetSdkVersion 24
+        versionCode 1
+        versionName "1.0"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+    flatDir {
+        dirs 'libs'
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+
+    // This library handles authentication and authorization
+    compile 'com.spotify.sdk:spotify-auth:1.0.0-beta13@aar'
+
+    // This library handles music playback
+    compile 'com.spotify.sdk:spotify-player:1.0.0-beta13@aar'
+
+    // All other dependencies for your app should also be here:
+    compile 'com.android.support:appcompat-v7:24.2.1'
+
+    compile 'com.android.support:recyclerview-v7:24.2.1'
+
+    compile 'com.google.code.gson:gson:2.3.1'
+    compile 'com.squareup.retrofit2:retrofit:2.0.2'
+    compile 'com.squareup.retrofit2:converter-gson:2.0.2'
+    compile 'com.squareup.picasso:picasso:2.4.0'
+}
