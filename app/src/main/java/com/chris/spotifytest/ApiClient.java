@@ -1,4 +1,4 @@
-package chris.spotifytest;
+package com.chris.spotifytest;
 
 /**
  * Created by Chris on 2016-09-20.

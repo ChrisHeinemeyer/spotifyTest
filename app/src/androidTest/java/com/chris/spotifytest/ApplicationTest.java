@@ -1,4 +1,4 @@
-package chris.spotifytest;
+package com.chris.spotifytest;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

@@ -6,7 +6,7 @@ android {
     // that you installed in the SDK manager
 
     defaultConfig {
-        applicationId "chris.SpotifyTest"
+        applicationId "com.chris.spotifytest"
         minSdkVersion 21
         targetSdkVersion 24
         versionCode 1

@@ -1,21 +1,18 @@
-package chris.spotifytest.dataTypes;
-
+package com.chris.spotifytest.dataTypes;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
-
 /**
  * Created by Chris on 2016-09-19.
  */
-public class Artist {
-
+public class Album {
     @SerializedName("id")
-    public String artist_id;
+    public String album_id;
 
     @SerializedName("images")
-    public List<Image>  artist_images;
+    public List<Image> images;
 
     @SerializedName("name")
-    public String artist_name;
+    public String album_name;
 
 }

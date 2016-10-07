@@ -1,4 +1,4 @@
-package chris.spotifytest.adapters;
+package com.chris.spotifytest.adapters;
 
 /**
  * Created by Chris on 2016-09-14.
@@ -22,8 +22,8 @@ import java.util.List;
 
 
 import chris.spotifytest.R;
-import chris.spotifytest.dataTypes.Track;
-import chris.spotifytest.dataTypes.TrackInfo;
+import com.chris.spotifytest.dataTypes.Track;
+import com.chris.spotifytest.dataTypes.TrackInfo;
 
 public class searchTrackResultAdapter extends RecyclerView.Adapter<searchTrackResultAdapter.MyViewHolder> {
 

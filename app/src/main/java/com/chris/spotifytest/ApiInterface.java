@@ -1,9 +1,9 @@
-package chris.spotifytest;
+package com.chris.spotifytest;
 
 /**
  * Created by Chris on 2016-09-20.
  */
-import chris.spotifytest.dataTypes.SearchResult;
+import com.chris.spotifytest.dataTypes.SearchResult;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.http.GET;

@@ -1,4 +1,4 @@
-package chris.spotifytest.dataTypes;
+package com.chris.spotifytest.dataTypes;
 
 import com.google.gson.annotations.SerializedName;
 

@@ -1,4 +1,4 @@
-package chris.spotifytest.Activities;
+package com.chris.spotifytest.Activities;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -24,13 +24,13 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
-import chris.spotifytest.ApiClient;
-import chris.spotifytest.ApiInterface;
+import com.chris.spotifytest.ApiClient;
+import com.chris.spotifytest.ApiInterface;
 import chris.spotifytest.R;
-import chris.spotifytest.dataTypes.SearchResult;
-import chris.spotifytest.dataTypes.Track;
-import chris.spotifytest.dataTypes.TrackInfo;
-import chris.spotifytest.adapters.searchTrackResultAdapter;
+import com.chris.spotifytest.dataTypes.SearchResult;
+import com.chris.spotifytest.dataTypes.Track;
+import com.chris.spotifytest.dataTypes.TrackInfo;
+import com.chris.spotifytest.adapters.searchTrackResultAdapter;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;

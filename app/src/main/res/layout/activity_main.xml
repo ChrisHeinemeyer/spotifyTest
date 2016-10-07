@@ -1,31 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Activities.MainActivity">
-
-
+    android:orientation="vertical" >
     <include
         android:id="@+id/my_toolbar"
         layout="@layout/toolbar">
     </include>
 
-    <ProgressBar
-        android:id="@+id/progressBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:visibility="gone" />
+    <FrameLayout
+        android:id="@+id/your_placeholder"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    </FrameLayout>
 
-
-
-
-
-
-
-
-
-</RelativeLayout>
+</LinearLayout>

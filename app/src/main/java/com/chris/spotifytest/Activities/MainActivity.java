@@ -1,5 +1,7 @@
-package chris.spotifytest.Activities;
+package com.chris.spotifytest.Activities;
 
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -45,7 +47,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import chris.spotifytest.R;
-import chris.spotifytest.dataTypes.SearchResult;
+import com.chris.spotifytest.dataTypes.SearchResult;
+import com.chris.spotifytest.fragments.SearchFragment;
+import com.chris.spotifytest.fragments.MainFragment;
+
 
 public class MainActivity extends AppCompatActivity implements
         PlayerNotificationCallback, ConnectionStateCallback {
@@ -59,8 +64,8 @@ public class MainActivity extends AppCompatActivity implements
     List<String> trackResultsList = new ArrayList<String>();
     private MenuItem mSearchAction;
     private boolean isSearchOpened = false;
-    private EditText edtSearch;
-    AuthenticationResponse authenticationResponse;
+    private static EditText edtSearch;
+    private static String accessToken;
     private Player mPlayer;
 
     static final String API_URL = "https://api.spotify.com";
@@ -77,7 +82,14 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
+        FragmentManager fragmentManager = getFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        MainFragment mainFragment = new MainFragment();
+        fragmentTransaction.add(R.id.your_placeholder, mainFragment, "HELLO");
+        fragmentTransaction.commit();
+
         myToolbar = (android.support.v7.widget.Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
@@ -176,12 +188,13 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
     private void doSearch() {
-     // new RetrieveFeedTask().execute();
-    Intent intent = new Intent(getApplicationContext(), SearchableActivity.class);
-    intent.putExtra("authResponse", authenticationResponse.getAccessToken());
-    intent.putExtra("searchString", edtSearch.getText().toString());
 
-    startActivity(intent);
+    SearchFragment searchFragment = new SearchFragment();
+    FragmentManager fragmentManager = getFragmentManager();
+    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+    fragmentTransaction.replace(R.id.your_placeholder, searchFragment, "HELLO");
+    fragmentTransaction.commit();
+
     }
 
     @Override
@@ -211,7 +224,7 @@ public class MainActivity extends AppCompatActivity implements
                         mPlayer = player;
                         mPlayer.addConnectionStateCallback(MainActivity.this);
                         mPlayer.addPlayerNotificationCallback(MainActivity.this);
-                        authenticationResponse = response;
+                        setAccessToken(response.getAccessToken());
                         //mPlayer.play("spotify:track:2TpxZ7JUBn3uw46aR7qd6V");
                     }
 
@@ -223,6 +236,16 @@ public class MainActivity extends AppCompatActivity implements
             }
         }
     }
+
+    public static String getAccessToken() {
+        return accessToken;
+    }
+
+    private static void setAccessToken(String accessToken) {
+       MainActivity.accessToken = accessToken;
+    }
+
+
 
     @Override
     public void onLoggedIn() {
@@ -264,6 +287,12 @@ public class MainActivity extends AppCompatActivity implements
         Spotify.destroyPlayer(this);
         super.onDestroy();
     }
+
+    public static EditText getEdtSearch() {
+        return edtSearch;
+    }
+
+
 
 }
 
