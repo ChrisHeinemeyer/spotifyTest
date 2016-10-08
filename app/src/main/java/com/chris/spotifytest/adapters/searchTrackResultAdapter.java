@@ -21,7 +21,7 @@ import com.squareup.picasso.Picasso;
 import java.util.List;
 
 
-import chris.spotifytest.R;
+import com.chris.spotifytest.R;
 import com.chris.spotifytest.dataTypes.Track;
 import com.chris.spotifytest.dataTypes.TrackInfo;
 
@@ -43,6 +43,7 @@ public class searchTrackResultAdapter extends RecyclerView.Adapter<searchTrackRe
         this.listener = listener;
         this.longListener = longListener;
     }
+
 
 
 
@@ -98,12 +99,6 @@ public class searchTrackResultAdapter extends RecyclerView.Adapter<searchTrackRe
                     return true;
                 }
             });
-
-
-
         }
-
-
-
     }
 }

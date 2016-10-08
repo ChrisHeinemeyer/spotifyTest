@@ -1,10 +1,10 @@
 package com.chris.spotifytest.Activities;
 
+import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.ActionBar;
@@ -21,52 +21,55 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import com.chris.spotifytest.fragments.PlaybackControlsFragment;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
 import com.spotify.sdk.android.player.Config;
 import com.spotify.sdk.android.player.Player;
+import com.spotify.sdk.android.player.PlayerStateCallback;
 import com.spotify.sdk.android.player.Spotify;
 import com.spotify.sdk.android.player.ConnectionStateCallback;
 import com.spotify.sdk.android.player.PlayerNotificationCallback;
 import com.spotify.sdk.android.player.PlayerState;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.json.JSONTokener;
-
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.lang.reflect.Type;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import chris.spotifytest.R;
-import com.chris.spotifytest.dataTypes.SearchResult;
+import com.chris.spotifytest.R;
 import com.chris.spotifytest.fragments.SearchFragment;
 import com.chris.spotifytest.fragments.MainFragment;
 
 
 public class MainActivity extends AppCompatActivity implements
-        PlayerNotificationCallback, ConnectionStateCallback {
+        PlayerNotificationCallback, ConnectionStateCallback, SearchFragment.OnSearchItemSelectedListener, PlaybackControlsFragment.OnPausePlayListener {
 
     static final int NUM_RESULTS = 20;
+    private static final String TAG = "MainActivity";
 
-    ProgressBar progressBar;
-    Toolbar myToolbar;
-    List<String> artistResultsList = new ArrayList<String>();
-    List<String> albumResultsList = new ArrayList<String>();
-    List<String> trackResultsList = new ArrayList<String>();
+
+
+    private static Toolbar myToolbar;
     private MenuItem mSearchAction;
     private boolean isSearchOpened = false;
     private static EditText edtSearch;
+
+    ProgressBar progressBar;
+
+    private boolean setNowPlaying;
+    private boolean playbackControlsShown;
+
+
+
+    List<String> artistResultsList = new ArrayList<String>();
+    List<String> albumResultsList = new ArrayList<String>();
+    List<String> trackResultsList = new ArrayList<String>();
+
+
     private static String accessToken;
     private Player mPlayer;
+    private int pauseTime;
+
 
     static final String API_URL = "https://api.spotify.com";
 
@@ -87,12 +90,21 @@ public class MainActivity extends AppCompatActivity implements
         FragmentManager fragmentManager = getFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         MainFragment mainFragment = new MainFragment();
-        fragmentTransaction.add(R.id.your_placeholder, mainFragment, "HELLO");
+        PlaybackControlsFragment controlsFragment = new PlaybackControlsFragment();
+        fragmentTransaction.add(R.id.main_view, mainFragment, "HELLO");
+        fragmentTransaction.add(R.id.playback_controls, controlsFragment, "controlsFragment");
+        fragmentTransaction.hide(controlsFragment);
         fragmentTransaction.commit();
+
+
+
+       // hidePlaybackControls();
 
         myToolbar = (android.support.v7.widget.Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
-        progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        //progressBar = (ProgressBar) findViewById(R.id.progressBar);
+
+        //spotify authentication
         AuthenticationRequest.Builder builder = new AuthenticationRequest.Builder(CLIENT_ID,
                 AuthenticationResponse.Type.TOKEN,
                 REDIRECT_URI);
@@ -102,6 +114,21 @@ public class MainActivity extends AppCompatActivity implements
         AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
 
 
+    }
+
+    @Override
+    protected void onDestroy() {
+        Spotify.destroyPlayer(this);
+        super.onDestroy();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(isSearchOpened) {
+            handleMenuSearch();
+            return;
+        }
+        super.onBackPressed();
     }
 
     @Override
@@ -115,6 +142,66 @@ public class MainActivity extends AppCompatActivity implements
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
+    }
+
+    public void onSearchItemSelected(String id, String track_name, String artist_name, String art_url){
+        Log.d("MainActivity", "Search item selected");
+        PlaybackControlsFragment playbackControlsFragment = (PlaybackControlsFragment)
+                getFragmentManager().findFragmentById(R.id.playback_controls);
+
+        if (playbackControlsFragment != null) {
+            // If article frag is available, we're in two-pane layout...
+
+            // Call a method in the ArticleFragment to update its content
+            playbackControlsFragment.updateView(id, track_name, artist_name, art_url);
+            if(!playbackControlsShown){
+                showPlaybackControls();
+            }
+        } else {
+            // Otherwise, we're in the one-pane layout and must swap frags...
+
+            // Create fragment and give it an argument for the selected article
+            PlaybackControlsFragment newFragment = new PlaybackControlsFragment();
+            Bundle args = new Bundle();
+            args.putString("id", id);
+            args.putString("track_name", track_name);
+            args.putString("artist_name", artist_name);
+            args.putString("art_url", art_url);
+            newFragment.setArguments(args);
+
+            FragmentTransaction transaction = getFragmentManager().beginTransaction();
+
+            // Replace whatever is in the fragment_container view with this fragment,
+            // and add the transaction to the back stack so the user can navigate back
+            transaction.replace(R.id.playback_controls, newFragment);
+
+
+            // Commit the transaction
+            transaction.commit();
+
+            if(!playbackControlsShown){
+                showPlaybackControls();
+            }
+        }
+
+    }
+
+    public void onPausePlayPressed(){
+        mPlayer.getPlayerState(new PlayerStateCallback() {
+            @Override
+            public void onPlayerState(PlayerState playerState) {
+                if (playerState.playing){
+                    pauseTime = playerState.positionInMs;
+                    String time = Integer.toString(pauseTime);
+                    Log.d(TAG, "paused at "+time);
+                    mPlayer.pause();
+                }
+                else {
+                    mPlayer.resume();
+
+                }
+            }
+        });
     }
 
     @Override
@@ -187,23 +274,34 @@ public class MainActivity extends AppCompatActivity implements
             isSearchOpened = true;
         }
     }
+
     private void doSearch() {
 
     SearchFragment searchFragment = new SearchFragment();
     FragmentManager fragmentManager = getFragmentManager();
     FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-    fragmentTransaction.replace(R.id.your_placeholder, searchFragment, "HELLO");
+    fragmentTransaction.replace(R.id.main_view, searchFragment, "HELLO");
+    fragmentTransaction.addToBackStack(null);
     fragmentTransaction.commit();
 
     }
+    public Player getPlayer(){
+        return mPlayer;
+    }
 
-    @Override
-    public void onBackPressed() {
-        if(isSearchOpened) {
-            handleMenuSearch();
-            return;
-        }
-        super.onBackPressed();
+
+
+
+    public static String getAccessToken() {
+        return accessToken;
+    }
+
+    private static void setAccessToken(String accessToken) {
+        MainActivity.accessToken = accessToken;
+    }
+
+    public static EditText getEdtSearch() {
+        return edtSearch;
     }
 
 
@@ -237,16 +335,6 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
-    public static String getAccessToken() {
-        return accessToken;
-    }
-
-    private static void setAccessToken(String accessToken) {
-       MainActivity.accessToken = accessToken;
-    }
-
-
-
     @Override
     public void onLoggedIn() {
         Log.d("MainActivity", "User logged in");
@@ -275,6 +363,18 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onPlaybackEvent(EventType eventType, PlayerState playerState) {
         Log.d("MainActivity", "Playback event received: " + eventType.name());
+        PlaybackControlsFragment playbackControlsFragment = (PlaybackControlsFragment)
+                getFragmentManager().findFragmentById(R.id.playback_controls);
+        switch (eventType.name()) {
+
+            case "PAUSE":
+                playbackControlsFragment.onPlaybackPaused();
+                break;
+            case "PLAY":
+                playbackControlsFragment.onPlaybackPlaying();
+                break;
+            default: break;
+        }
     }
 
     @Override
@@ -282,15 +382,28 @@ public class MainActivity extends AppCompatActivity implements
         Log.d("MainActivity", "Playback error received: " + errorType.name());
     }
 
-    @Override
-    protected void onDestroy() {
-        Spotify.destroyPlayer(this);
-        super.onDestroy();
+    protected void showPlaybackControls() {
+        Log.d(TAG, "showPlaybackControls");
+        Fragment controlsFragment = getFragmentManager().findFragmentByTag("controlsFragment");
+        //Fragment mainFragment = getFragmentManager().findFragmentByTag("HELLO");
+
+        getFragmentManager().beginTransaction()
+                .show(controlsFragment)
+                //.hide(mainFragment)
+                .commit();
+        findViewById(R.id.controls_container).setVisibility(View.VISIBLE);
+        playbackControlsShown = true;
+
     }
 
-    public static EditText getEdtSearch() {
-        return edtSearch;
-    }
+//    protected void hidePlaybackControls() {
+//        Log.d(TAG, "hidePlaybackControls");
+//        getFragmentManager().beginTransaction()
+//                .hide(controlsFragment)
+//                .commit();
+//        playbackControlsShown = false;
+//    }
+
 
 
 

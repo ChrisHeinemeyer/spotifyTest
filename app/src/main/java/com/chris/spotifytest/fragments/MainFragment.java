@@ -6,7 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import chris.spotifytest.R;
+import com.chris.spotifytest.R;
 
 /**
  * Created by Chris on 2016-10-06.

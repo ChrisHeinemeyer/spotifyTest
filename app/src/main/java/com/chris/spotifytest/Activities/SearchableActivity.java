@@ -26,7 +26,7 @@ import java.util.List;
 
 import com.chris.spotifytest.ApiClient;
 import com.chris.spotifytest.ApiInterface;
-import chris.spotifytest.R;
+import com.chris.spotifytest.R;
 import com.chris.spotifytest.dataTypes.SearchResult;
 import com.chris.spotifytest.dataTypes.Track;
 import com.chris.spotifytest.dataTypes.TrackInfo;

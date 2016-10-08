@@ -4,12 +4,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    >
+    tools:context=".Activities.SearchableActivity">
 
-    <include
-        android:id="@+id/my_toolbar"
-        layout="@layout/toolbar">
-    </include>
+
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/rlv"
@@ -17,9 +14,6 @@
         android:layout_below="@+id/my_toolbar"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
-
-
-
 
 
 </RelativeLayout>
