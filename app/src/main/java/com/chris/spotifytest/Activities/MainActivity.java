@@ -68,7 +68,7 @@ public class MainActivity extends AppCompatActivity implements
 
     private static String accessToken;
     private Player mPlayer;
-    private int pauseTime;
+
 
 
     static final String API_URL = "https://api.spotify.com";
@@ -191,9 +191,6 @@ public class MainActivity extends AppCompatActivity implements
             @Override
             public void onPlayerState(PlayerState playerState) {
                 if (playerState.playing){
-                    pauseTime = playerState.positionInMs;
-                    String time = Integer.toString(pauseTime);
-                    Log.d(TAG, "paused at "+time);
                     mPlayer.pause();
                 }
                 else {
