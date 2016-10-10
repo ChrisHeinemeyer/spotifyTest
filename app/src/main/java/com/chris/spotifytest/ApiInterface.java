@@ -5,6 +5,8 @@ package com.chris.spotifytest;
  */
 import com.chris.spotifytest.dataTypes.AlbumDetailed;
 import com.chris.spotifytest.dataTypes.SearchResult;
+import com.chris.spotifytest.dataTypes.Track;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.http.GET;
@@ -18,5 +20,8 @@ public interface ApiInterface {
 
     @GET("/v1/albums/{id}")
     Call<AlbumDetailed> getAlbum(@Path("id")String albumId);
+
+    @GET("/v1/tracks/{id}")
+    Call<Track> getTrack(@Path("id")String trackId);
 
 }

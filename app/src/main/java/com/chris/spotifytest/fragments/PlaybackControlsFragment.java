@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.support.v4.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,13 +11,18 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.chris.spotifytest.Activities.MainActivity;
-import com.chris.spotifytest.OnPausePlayListener;
+import com.chris.spotifytest.ApiClient;
+import com.chris.spotifytest.ApiInterface;
+import com.chris.spotifytest.OnPlaybackControlButtonPressed;
 import com.chris.spotifytest.R;
-import com.spotify.sdk.android.player.Spotify;
+import com.chris.spotifytest.dataTypes.AlbumDetailed;
+import com.chris.spotifytest.dataTypes.Track;
 import com.squareup.picasso.Picasso;
 
-import static com.chris.spotifytest.R.id.album_art;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 import static com.chris.spotifytest.R.id.album_art_image;
 
 
@@ -28,13 +32,15 @@ import static com.chris.spotifytest.R.id.album_art_image;
 
 public class PlaybackControlsFragment extends Fragment implements View.OnClickListener {
     static final String TAG = "ControlsFragment";
+    private Track nowPlayingTrack;
     private static ImageView nowPlayingImage;
     private static ImageView pausePlay;
     private static TextView nowPlayingTitle;
     private static TextView nowPlayingArtist;
+    private static ImageView nextTrack;
 
     public static String track_id;
-    OnPausePlayListener mListener;
+    OnPlaybackControlButtonPressed mListener;
 
 
 
@@ -46,7 +52,7 @@ public class PlaybackControlsFragment extends Fragment implements View.OnClickLi
 
         if (context instanceof Activity){
             a=(Activity) context;
-            mListener = (OnPausePlayListener) a;
+            mListener = (OnPlaybackControlButtonPressed) a;
         }
 
 
@@ -63,6 +69,10 @@ public class PlaybackControlsFragment extends Fragment implements View.OnClickLi
         pausePlay = (ImageView) getView().findViewById(R.id.play_pause);
         pausePlay.setOnClickListener(this);
 
+        nextTrack = (ImageView) getView().findViewById(R.id.next_track);
+        nextTrack.setOnClickListener(this);
+        nextTrack.setImageResource(R.drawable.ic_pause_black_24dp);
+
     }
 
     @Override
@@ -70,6 +80,9 @@ public class PlaybackControlsFragment extends Fragment implements View.OnClickLi
         switch (v.getId()) {
             case R.id.play_pause:
                 mListener.onPausePlayPressed();
+                break;
+            case R.id.next_track:
+                mListener.onNextTrackPressed();
                 break;
             default:
                 break;
@@ -90,6 +103,49 @@ public class PlaybackControlsFragment extends Fragment implements View.OnClickLi
                 .load(art_url)
                 .into(nowPlayingImage);
         track_id = id;
+    }
+
+    public void newSongFromQueue(String id){
+        ApiInterface apiService = ApiClient.getClient().create(ApiInterface.class);
+        Call<Track> call = apiService.getTrack(id.substring(14));
+        call.enqueue(new Callback<Track>() {
+            @Override
+            public void onResponse(Call<Track>call, Response<Track> response) {
+                Track result = response.body();
+                trackUpdated(result);
+                //mSearchFinishedListener.onSearchFinishedListener(result);
+
+
+
+            }
+
+            @Override
+            public void onFailure(Call<Track>call, Throwable t) {
+                Log.d("a","faileda");
+            }
+        });
+    }
+
+    public void trackUpdated(final Track result){
+        String id = result.album.album_id;
+        ApiInterface apiService = ApiClient.getClient().create(ApiInterface.class);
+        Call<AlbumDetailed> call = apiService.getAlbum(id);
+        call.enqueue(new Callback<AlbumDetailed>() {
+            @Override
+            public void onResponse(Call<AlbumDetailed>call, Response<AlbumDetailed> response) {
+                AlbumDetailed album = response.body();
+                updateView(result.track_id,result.track_name,result.artists.get(0).artist_name,album.images.get(1).art_url);
+                //mSearchFinishedListener.onSearchFinishedListener(result);
+
+
+
+            }
+
+            @Override
+            public void onFailure(Call<AlbumDetailed>call, Throwable t) {
+                Log.d("a","faileda");
+            }
+        });
     }
 
 

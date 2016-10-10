@@ -154,7 +154,6 @@ public class AlbumViewFragment extends Fragment{
                     @Override
                     public void onItemClick(Track item) {
 
-                        final String play = "spotify:track:" +item.track_id;
                         final String track_id = item.track_id;
                         final String track_name = item.track_name;
                         final String artist_name = item.artists.get(0).artist_name;
@@ -165,7 +164,7 @@ public class AlbumViewFragment extends Fragment{
                 }, new albumViewTrackAdapter.OnLongItemClickListener() {
                     @Override
                     public void onLongItemClick(Track item) {
-                        Toast.makeText(getActivity().getBaseContext(), item.album.album_name, Toast.LENGTH_SHORT).show();
+                      //  Toast.makeText(getActivity().getBaseContext(), item.album.album_id, Toast.LENGTH_SHORT).show();
                     }
                 });
                 RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getActivity().getApplicationContext());

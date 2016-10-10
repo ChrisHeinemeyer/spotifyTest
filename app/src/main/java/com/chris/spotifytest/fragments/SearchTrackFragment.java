@@ -88,7 +88,7 @@ public class SearchTrackFragment extends Fragment {
         tAdapter = new searchTrackResultAdapter(trackList, new searchTrackResultAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(Track item) {
-                Toast.makeText(getActivity().getBaseContext(), item.track_name, Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getActivity().getBaseContext(), item.track_name, Toast.LENGTH_SHORT).show();
                 final String play = "spotify:track:" +item.track_id;
                 final String track_id = item.track_id;
                 final String track_name = item.track_name;
@@ -102,7 +102,8 @@ public class SearchTrackFragment extends Fragment {
         }, new searchTrackResultAdapter.OnLongItemClickListener() {
             @Override
             public void onLongItemClick(Track item) {
-                Toast.makeText(getActivity().getBaseContext(), item.album.album_name, Toast.LENGTH_SHORT).show();
+              //  Toast.makeText(getActivity().getBaseContext(), item.album.album_name, Toast.LENGTH_SHORT).show();
+                mSearchClickedListener.onSearchTrackItemLongPressed(item.track_id);
             }
         });
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getActivity().getApplicationContext());

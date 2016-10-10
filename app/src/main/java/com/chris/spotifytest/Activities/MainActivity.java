@@ -23,11 +23,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.chris.spotifytest.OnFragmentChange;
-import com.chris.spotifytest.OnPausePlayListener;
+import com.chris.spotifytest.OnPlaybackControlButtonPressed;
 import com.chris.spotifytest.OnSearchItemSelectedListener;
 import com.chris.spotifytest.fragments.AlbumViewFragment;
 import com.chris.spotifytest.fragments.PlaybackControlsFragment;
-import com.chris.spotifytest.fragments.SearchTrackFragment;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
@@ -39,16 +38,13 @@ import com.spotify.sdk.android.player.ConnectionStateCallback;
 import com.spotify.sdk.android.player.PlayerNotificationCallback;
 import com.spotify.sdk.android.player.PlayerState;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.chris.spotifytest.R;
 import com.chris.spotifytest.fragments.SearchFragment;
 import com.chris.spotifytest.fragments.MainFragment;
 
 
 public class MainActivity extends AppCompatActivity implements
-        PlayerNotificationCallback, ConnectionStateCallback,  OnPausePlayListener, OnSearchItemSelectedListener, OnFragmentChange {
+        PlayerNotificationCallback, ConnectionStateCallback, OnPlaybackControlButtonPressed, OnSearchItemSelectedListener, OnFragmentChange {
 
     static final int NUM_RESULTS = 20;
     private static final String TAG = "MainActivity";
@@ -154,13 +150,13 @@ public class MainActivity extends AppCompatActivity implements
         Log.d("MainActivity", "Search track item selected");
         PlaybackControlsFragment playbackControlsFragment = (PlaybackControlsFragment)
                 getSupportFragmentManager().findFragmentById(R.id.playback_controls);
-        Toast.makeText(getBaseContext(), track_name, Toast.LENGTH_SHORT).show();
+   //     Toast.makeText(getBaseContext(), track_name, Toast.LENGTH_SHORT).show();
 
         if (playbackControlsFragment != null) {
             // If article frag is available, we're in two-pane layout...
 
             // Call a method in the ArticleFragment to update its content
-            playbackControlsFragment.updateView(id, track_name, artist_name, art_url);
+           // playbackControlsFragment.updateView(id, track_name, artist_name, art_url);
             if(!playbackControlsShown){
                 showPlaybackControls();
             }
@@ -243,6 +239,18 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
+    public void onSearchTrackItemLongPressed(String id){
+        final String uri = "spotify:track:" +id;
+        mPlayer.getPlayerState(new PlayerStateCallback() {
+
+            @Override
+            public void onPlayerState(PlayerState playerState) {
+                Toast.makeText(getApplicationContext(), "Queuing tracks", Toast.LENGTH_SHORT).show();
+               mPlayer.queue(uri);
+            }
+        });
+    }
+
     public void onPausePlayPressed(){
         mPlayer.getPlayerState(new PlayerStateCallback() {
             @Override
@@ -254,6 +262,17 @@ public class MainActivity extends AppCompatActivity implements
                     mPlayer.resume();
 
                 }
+            }
+        });
+    }
+
+    public void onNextTrackPressed(){
+        mPlayer.getPlayerState(new PlayerStateCallback() {
+            @Override
+            public void onPlayerState(PlayerState playerState) {
+                Toast.makeText(getApplicationContext(), "Skipping tracks", Toast.LENGTH_SHORT).show();
+                mPlayer.skipToNext();
+                mPlayer.resume();
             }
         });
     }
@@ -409,6 +428,14 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onLoggedIn() {
         Log.d("MainActivity", "User logged in");
+        mPlayer.getPlayerState(new PlayerStateCallback() {
+            @Override
+            public void onPlayerState(PlayerState playerState) {
+                Toast.makeText(getApplicationContext(), "Clearing queue ", Toast.LENGTH_SHORT).show();
+
+                mPlayer.clearQueue();
+            }
+        });
     }
 
     @Override
@@ -444,13 +471,18 @@ public class MainActivity extends AppCompatActivity implements
             case "PLAY":
                 playbackControlsFragment.onPlaybackPlaying();
                 break;
+            case "TRACK_CHANGED":
+                if(playbackControlsFragment != null) {
+                    if(playerState.trackUri.length()>0)
+                        playbackControlsFragment.newSongFromQueue(playerState.trackUri);
+                }
             default: break;
         }
     }
 
     @Override
     public void onPlaybackError(ErrorType errorType, String errorDetails) {
-        Log.d("MainActivity", "Playback error received: " + errorType.name());
+        Log.d("MainActivity", "Playback error received: " + errorType.name() + ": " + errorDetails);
     }
 
     protected void showPlaybackControls() {
