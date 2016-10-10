@@ -193,7 +193,7 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     public void onSearchAlbumItemSelected(String id, String art_url){
-        Log.d("MainActivity", "Search album item selected");
+        Log.d("MainActivity", "Search album item selected ");
        AlbumViewFragment albumViewFragment = (AlbumViewFragment)
                 getSupportFragmentManager().findFragmentById(R.id.main_content);
 
