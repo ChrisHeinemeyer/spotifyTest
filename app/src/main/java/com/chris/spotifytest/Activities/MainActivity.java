@@ -1,8 +1,8 @@
 package com.chris.spotifytest.Activities;
 
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
+import  android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -21,7 +21,9 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.chris.spotifytest.OnPausePlayListener;
 import com.chris.spotifytest.fragments.PlaybackControlsFragment;
+import com.chris.spotifytest.fragments.SearchTrackFragment;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
@@ -42,7 +44,7 @@ import com.chris.spotifytest.fragments.MainFragment;
 
 
 public class MainActivity extends AppCompatActivity implements
-        PlayerNotificationCallback, ConnectionStateCallback, SearchFragment.OnSearchItemSelectedListener, PlaybackControlsFragment.OnPausePlayListener {
+        PlayerNotificationCallback, ConnectionStateCallback,  OnPausePlayListener, SearchTrackFragment.OnSearchItemSelectedListener {
 
     static final int NUM_RESULTS = 20;
     private static final String TAG = "MainActivity";
@@ -87,7 +89,7 @@ public class MainActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
-        FragmentManager fragmentManager = getFragmentManager();
+        FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         MainFragment mainFragment = new MainFragment();
         PlaybackControlsFragment controlsFragment = new PlaybackControlsFragment();
@@ -147,7 +149,7 @@ public class MainActivity extends AppCompatActivity implements
     public void onSearchItemSelected(String id, String track_name, String artist_name, String art_url){
         Log.d("MainActivity", "Search item selected");
         PlaybackControlsFragment playbackControlsFragment = (PlaybackControlsFragment)
-                getFragmentManager().findFragmentById(R.id.playback_controls);
+                getSupportFragmentManager().findFragmentById(R.id.playback_controls);
 
         if (playbackControlsFragment != null) {
             // If article frag is available, we're in two-pane layout...
@@ -169,7 +171,7 @@ public class MainActivity extends AppCompatActivity implements
             args.putString("art_url", art_url);
             newFragment.setArguments(args);
 
-            FragmentTransaction transaction = getFragmentManager().beginTransaction();
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
             // Replace whatever is in the fragment_container view with this fragment,
             // and add the transaction to the back stack so the user can navigate back
@@ -179,10 +181,13 @@ public class MainActivity extends AppCompatActivity implements
             // Commit the transaction
             transaction.commit();
 
+
             if(!playbackControlsShown){
                 showPlaybackControls();
             }
         }
+        final String play = "spotify:track:" +id;
+        mPlayer.play(play);
 
     }
 
@@ -275,7 +280,7 @@ public class MainActivity extends AppCompatActivity implements
     private void doSearch() {
 
     SearchFragment searchFragment = new SearchFragment();
-    FragmentManager fragmentManager = getFragmentManager();
+    FragmentManager fragmentManager = getSupportFragmentManager();
     FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
     fragmentTransaction.replace(R.id.main_view, searchFragment, "HELLO");
     fragmentTransaction.addToBackStack(null);
@@ -361,7 +366,7 @@ public class MainActivity extends AppCompatActivity implements
     public void onPlaybackEvent(EventType eventType, PlayerState playerState) {
         Log.d("MainActivity", "Playback event received: " + eventType.name());
         PlaybackControlsFragment playbackControlsFragment = (PlaybackControlsFragment)
-                getFragmentManager().findFragmentById(R.id.playback_controls);
+                getSupportFragmentManager().findFragmentById(R.id.playback_controls);
         switch (eventType.name()) {
 
             case "PAUSE":
@@ -381,10 +386,10 @@ public class MainActivity extends AppCompatActivity implements
 
     protected void showPlaybackControls() {
         Log.d(TAG, "showPlaybackControls");
-        Fragment controlsFragment = getFragmentManager().findFragmentByTag("controlsFragment");
+        Fragment controlsFragment = getSupportFragmentManager().findFragmentByTag("controlsFragment");
         //Fragment mainFragment = getFragmentManager().findFragmentByTag("HELLO");
 
-        getFragmentManager().beginTransaction()
+        getSupportFragmentManager().beginTransaction()
                 .show(controlsFragment)
                 //.hide(mainFragment)
                 .commit();

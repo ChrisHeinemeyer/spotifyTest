@@ -12,29 +12,29 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.chris.spotifytest.dataTypes.Album;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
 
 import com.chris.spotifytest.R;
-import com.chris.spotifytest.dataTypes.Track;
 
-public class searchTrackResultAdapter extends RecyclerView.Adapter<searchTrackResultAdapter.MyViewHolder> {
+public class searchAlbumResultAdapter extends RecyclerView.Adapter<searchAlbumResultAdapter.MyViewHolder> {
 
     public interface OnItemClickListener {
-        void onItemClick(Track item);
+        void onItemClick(Album item);
     }
 
     public interface OnLongItemClickListener {
-        void onLongItemClick(Track item);
+        void onLongItemClick(Album item);
     }
-    private List<Track> trackList;
+    private List<Album> albumList;
     private final OnItemClickListener listener;
     private final OnLongItemClickListener longListener;
 
-    public searchTrackResultAdapter(List<Track> trackInfoList, OnItemClickListener listener, OnLongItemClickListener longListener) {
-        this.trackList = trackInfoList;
+    public searchAlbumResultAdapter(List<Album> albumInfoList, OnItemClickListener listener, OnLongItemClickListener longListener) {
+        this.albumList = albumInfoList;
         this.listener = listener;
         this.longListener = longListener;
     }
@@ -53,44 +53,44 @@ public class searchTrackResultAdapter extends RecyclerView.Adapter<searchTrackRe
 
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
-        holder.bind(trackList.get(position),listener, longListener);
+        holder.bind(albumList.get(position),listener, longListener);
     }
 
     @Override
     public int getItemCount() {
-        return trackList.size();
+        return albumList.size();
     }
 
     public static class MyViewHolder extends RecyclerView.ViewHolder  {
 
-        public TextView track, artist_album;
+        public TextView album, artist;
         public ImageView album_art;
 
 
         public MyViewHolder(View view) {
             super(view);
-            track = (TextView) view.findViewById(R.id.title1);
-            artist_album = (TextView) view.findViewById(R.id.sub_title);
+            album = (TextView) view.findViewById(R.id.title1);
+            artist = (TextView) view.findViewById(R.id.sub_title);
             album_art = (ImageView) view.findViewById(R.id.album_art);
         }
 
-        public void bind(final Track t, final OnItemClickListener listener, final OnLongItemClickListener longListener){
-            String artist_albumS = t.artists.get(0).artist_name + " | " + t.album.album_name;
-            track.setText(t.track_name);
-            artist_album.setText(artist_albumS);
+        public void bind(final Album a, final OnItemClickListener listener, final OnLongItemClickListener longListener){
+            String album_name = a.album_name;
+            album.setText(album_name);
+            artist.setText("artist name placeholder");
             Picasso.with(itemView.getContext())
-                    .load(t.album.images.get(1).art_url)
+                    .load(a.images.get(1).art_url)
                     .resize(200,200)
                     .into(album_art);
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override public void onClick(View v) {
-                    listener.onItemClick(t);
+                    listener.onItemClick(a);
                 }
             });
             itemView.setOnLongClickListener(new View.OnLongClickListener(){
                 @Override public boolean onLongClick(View v){
-                    longListener.onLongItemClick(t);
+                    longListener.onLongItemClick(a);
                     return true;
                 }
             });

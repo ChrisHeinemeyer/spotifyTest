@@ -1,7 +1,7 @@
 package com.chris.spotifytest.fragments;
 
 import android.app.Activity;
-import android.app.Fragment;
+import android.support.v4.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -13,6 +13,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.chris.spotifytest.Activities.MainActivity;
+import com.chris.spotifytest.OnPausePlayListener;
 import com.chris.spotifytest.R;
 import com.spotify.sdk.android.player.Spotify;
 import com.squareup.picasso.Picasso;
@@ -34,9 +35,7 @@ public class PlaybackControlsFragment extends Fragment implements View.OnClickLi
 
     public static String track_id;
     OnPausePlayListener mListener;
-    public interface OnPausePlayListener{
-        void onPausePlayPressed();
-    }
+
 
 
 

@@ -5,8 +5,6 @@ import android.support.v4.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.view.ViewPager;
-import android.support.v4.view.PagerAdapter;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -17,7 +15,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.chris.spotifytest.OnSearchFinished;
-import com.chris.spotifytest.adapters.SearchPagerAdapter;
+import com.chris.spotifytest.adapters.searchAlbumResultAdapter;
 import com.chris.spotifytest.dataTypes.Album;
 import com.spotify.sdk.android.player.Config;
 import com.spotify.sdk.android.player.Player;
@@ -40,29 +38,40 @@ import retrofit2.Response;
  * Created by Chris on 2016-10-06.
  */
 
-public class SearchFragment extends Fragment {
+public class SearchAlbumFragment extends Fragment{
     // The onCreateView method is called when Fragment should create its View object hierarchy,
-
-    private static final String CLIENT_ID = "cc42867f9fb24ed699f6ec68af1f448f";
-    final String TYPE = "track,artist,album,playlist";
-
+    // either dynamically or via XML layout inflation.
+    private static RecyclerView tRecyclerView;
+    private static  searchAlbumResultAdapter tAdapter;
+    private static List<Album> albumList;
+    OnSearchItemSelectedListener mSearchClickedListener;
     FragmentActivity listener;
-    ViewPager pager;
+
+
+
+
+    public interface OnSearchItemSelectedListener{
+        void onSearchItemSelected(String id, String track_name, String artist_name, String art_url);
+    }
+
     @Override
     public void onAttach(Context context){
         super.onAttach(context);
+
+        mSearchClickedListener = (OnSearchItemSelectedListener) listener;
+
+
 
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
         // Defines the xml file for the fragment
-        View result =  inflater.inflate(R.layout.pager, parent, false);
-        pager = (ViewPager)result.findViewById(R.id.pager);
 
 
 
-        return(result);
+        return inflater.inflate(R.layout.fragment_search, parent, false);
+
 
     }
 
@@ -70,38 +79,31 @@ public class SearchFragment extends Fragment {
     // Any view setup should occur here.  E.g., view lookups and attaching view listeners.
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-        String searchString = MainActivity.getEdtSearch().getText().toString();
 
-        String token = MainActivity.getAccessToken();
-        final  Config playerConfig = new Config(getActivity().getApplicationContext(), token, CLIENT_ID);
-
-        ApiInterface apiService = ApiClient.getClient().create(ApiInterface.class);
-        Call<SearchResult> call = apiService.getSearchResult(searchString, TYPE);
-        call.enqueue(new Callback<SearchResult>() {
+        tRecyclerView = (RecyclerView) view.findViewById(R.id.rlv);
+        tAdapter = new searchAlbumResultAdapter(albumList, new searchAlbumResultAdapter.OnItemClickListener() {
             @Override
-            public void onResponse(Call<SearchResult>call, Response<SearchResult> response) {
-                SearchResult result = response.body();
-               //mSearchFinishedListener.onSearchFinishedListener(result);
-                SearchAlbumFragment.update(result);
-                SearchTrackFragment.update(result);
-                pager.setAdapter(buildAdapter());
+            public void onItemClick(Album item) {
+                Toast.makeText(getActivity().getBaseContext(), item.album_name, Toast.LENGTH_SHORT).show();}
 
-
-
-
-            }
-
+        }, new searchAlbumResultAdapter.OnLongItemClickListener() {
             @Override
-            public void onFailure(Call<SearchResult>call, Throwable t) {
-                Log.d("a","faileda");
+            public void onLongItemClick(Album item) {
+                Toast.makeText(getActivity().getBaseContext(), item.album_name, Toast.LENGTH_SHORT).show();
             }
         });
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getActivity().getApplicationContext());
+        tRecyclerView.setLayoutManager(mLayoutManager);
+        tRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        tRecyclerView.setAdapter(tAdapter);
+
+
 
 
     }
 
-    private PagerAdapter buildAdapter() {
-        return(new SearchPagerAdapter(getActivity(), getChildFragmentManager()));
+    public static void update(SearchResult result){
+       albumList = result.albums.albums;
     }
 
 
