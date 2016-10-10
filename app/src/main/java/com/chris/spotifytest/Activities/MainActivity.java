@@ -20,8 +20,12 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.chris.spotifytest.OnFragmentChange;
 import com.chris.spotifytest.OnPausePlayListener;
+import com.chris.spotifytest.OnSearchItemSelectedListener;
+import com.chris.spotifytest.fragments.AlbumViewFragment;
 import com.chris.spotifytest.fragments.PlaybackControlsFragment;
 import com.chris.spotifytest.fragments.SearchTrackFragment;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
@@ -44,7 +48,7 @@ import com.chris.spotifytest.fragments.MainFragment;
 
 
 public class MainActivity extends AppCompatActivity implements
-        PlayerNotificationCallback, ConnectionStateCallback,  OnPausePlayListener, SearchTrackFragment.OnSearchItemSelectedListener {
+        PlayerNotificationCallback, ConnectionStateCallback,  OnPausePlayListener, OnSearchItemSelectedListener, OnFragmentChange {
 
     static final int NUM_RESULTS = 20;
     private static final String TAG = "MainActivity";
@@ -63,9 +67,9 @@ public class MainActivity extends AppCompatActivity implements
 
 
 
-    List<String> artistResultsList = new ArrayList<String>();
-    List<String> albumResultsList = new ArrayList<String>();
-    List<String> trackResultsList = new ArrayList<String>();
+//    List<String> artistResultsList = new ArrayList<String>();
+//    List<String> albumResultsList = new ArrayList<String>();
+//    List<String> trackResultsList = new ArrayList<String>();
 
 
     private static String accessToken;
@@ -146,10 +150,11 @@ public class MainActivity extends AppCompatActivity implements
         return true;
     }
 
-    public void onSearchItemSelected(String id, String track_name, String artist_name, String art_url){
-        Log.d("MainActivity", "Search item selected");
+    public void onSearchTrackItemSelected(String id, String track_name, String artist_name, String art_url){
+        Log.d("MainActivity", "Search track item selected");
         PlaybackControlsFragment playbackControlsFragment = (PlaybackControlsFragment)
                 getSupportFragmentManager().findFragmentById(R.id.playback_controls);
+        Toast.makeText(getBaseContext(), track_name, Toast.LENGTH_SHORT).show();
 
         if (playbackControlsFragment != null) {
             // If article frag is available, we're in two-pane layout...
@@ -171,13 +176,13 @@ public class MainActivity extends AppCompatActivity implements
             args.putString("art_url", art_url);
             newFragment.setArguments(args);
 
+
+
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
             // Replace whatever is in the fragment_container view with this fragment,
             // and add the transaction to the back stack so the user can navigate back
             transaction.replace(R.id.playback_controls, newFragment);
-
-
             // Commit the transaction
             transaction.commit();
 
@@ -189,6 +194,53 @@ public class MainActivity extends AppCompatActivity implements
         final String play = "spotify:track:" +id;
         mPlayer.play(play);
 
+    }
+
+    public void onSearchAlbumItemSelected(String id, String art_url){
+        Log.d("MainActivity", "Search album item selected");
+       AlbumViewFragment albumViewFragment = (AlbumViewFragment)
+                getSupportFragmentManager().findFragmentById(R.id.main_content);
+
+        if (albumViewFragment != null) {
+            // If article frag is available, we're in two-pane layout...
+
+            // Call a method in the ArticleFragment to update its content
+            albumViewFragment.tAdapter.notifyDataSetChanged();
+            albumViewFragment.update(id,art_url);
+
+        } else {
+            // Otherwise, we're in the one-pane layout and must swap frags...
+
+            // Create fragment and give it an argument for the selected article
+            AlbumViewFragment newFragment = new AlbumViewFragment();
+            Bundle args = new Bundle();
+            args.putString("id", id);
+            args.putString("art_url", art_url);
+            newFragment.setArguments(args);
+            newFragment.update(id,art_url);
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+
+            // Replace whatever is in the fragment_container view with this fragment,
+            // and add the transaction to the back stack so the user can navigate back
+            transaction.replace(R.id.main_view,newFragment, "avf");
+            transaction.addToBackStack("sf");
+
+            // Commit the transaction
+            transaction.commit();
+
+            if(isSearchOpened) {
+                handleMenuSearch();
+            }
+            if(getSupportActionBar()!=null){
+                getSupportActionBar().hide();
+            }
+
+
+
+//            if(playbackControlsShown){
+//                showPlaybackControls();
+//            }
+        }
     }
 
     public void onPausePlayPressed(){
@@ -204,6 +256,20 @@ public class MainActivity extends AppCompatActivity implements
                 }
             }
         });
+    }
+
+    public void appBarElevationNeeded(boolean b){
+        if(getSupportActionBar() != null) {
+           if(b) getSupportActionBar().setElevation(4);
+           else getSupportActionBar().setElevation(0);
+        }
+    }
+
+    public void appBarNeeded(boolean b){
+        if(getSupportActionBar() != null) {
+            if(b)  getSupportActionBar().show();
+            else  getSupportActionBar().hide();;
+        }
     }
 
     @Override
@@ -282,9 +348,12 @@ public class MainActivity extends AppCompatActivity implements
     SearchFragment searchFragment = new SearchFragment();
     FragmentManager fragmentManager = getSupportFragmentManager();
     FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-    fragmentTransaction.replace(R.id.main_view, searchFragment, "HELLO");
+    fragmentTransaction.replace(R.id.main_view, searchFragment, "sf");
     fragmentTransaction.addToBackStack(null);
     fragmentTransaction.commit();
+//    if(getSupportActionBar() != null) {
+//        getSupportActionBar().setElevation(0);
+//    }
 
     }
     public Player getPlayer(){

@@ -58,7 +58,10 @@ public class searchTrackResultAdapter extends RecyclerView.Adapter<searchTrackRe
 
     @Override
     public int getItemCount() {
-        return trackList.size();
+        if (trackList != null) {
+            return trackList.size();
+        }
+        else return 0;
     }
 
     public static class MyViewHolder extends RecyclerView.ViewHolder  {
@@ -75,13 +78,26 @@ public class searchTrackResultAdapter extends RecyclerView.Adapter<searchTrackRe
         }
 
         public void bind(final Track t, final OnItemClickListener listener, final OnLongItemClickListener longListener){
-            String artist_albumS = t.artists.get(0).artist_name + " | " + t.album.album_name;
+            String artist_albumS = t.artists.get(0).artist_name+ " | " + t.album.album_name;
             track.setText(t.track_name);
             artist_album.setText(artist_albumS);
-            Picasso.with(itemView.getContext())
-                    .load(t.album.images.get(1).art_url)
-                    .resize(200,200)
-                    .into(album_art);
+
+            if(t.album.images.size() > 1) {
+                Picasso.with(itemView.getContext())
+                        .load(t.album.images.get(1).art_url)
+                        .resize(200, 200)
+                        .into(album_art);
+            } else if (t.album.images.size() == 1){
+                Picasso.with(itemView.getContext())
+                        .load(t.album.images.get(0).art_url)
+                        .resize(200, 200)
+                        .into(album_art);
+            } else if (t.album.images.size() == 0){
+                Picasso.with(itemView.getContext())
+                        .load(R.drawable.album_art_blank)
+                        .resize(200, 200)
+                        .into(album_art);
+            }
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override public void onClick(View v) {

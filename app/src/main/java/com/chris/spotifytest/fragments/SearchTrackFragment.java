@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.chris.spotifytest.OnSearchFinished;
+import com.chris.spotifytest.OnSearchItemSelectedListener;
 import com.chris.spotifytest.dataTypes.Album;
 import com.spotify.sdk.android.player.Config;
 import com.spotify.sdk.android.player.Player;
@@ -41,12 +42,13 @@ public class SearchTrackFragment extends Fragment {
     // The onCreateView method is called when Fragment should create its View object hierarchy,
     // either dynamically or via XML layout inflation.
     private RecyclerView tRecyclerView;
-    private searchTrackResultAdapter tAdapter;
+    private static searchTrackResultAdapter tAdapter;
     private static final String CLIENT_ID = "cc42867f9fb24ed699f6ec68af1f448f";
     //    List<TrackInfo> resultsList = new ArrayList<TrackInfo>();
     final String TYPE = "track,artist,album,playlist";
     private Player mPlayer;
     OnSearchItemSelectedListener mSearchClickedListener;
+
 
     public static List<Track> trackList;
     FragmentActivity listener;
@@ -54,9 +56,7 @@ public class SearchTrackFragment extends Fragment {
 
 
 
-    public interface OnSearchItemSelectedListener{
-        void onSearchItemSelected(String id, String track_name, String artist_name, String art_url);
-    }
+
 
     @Override
     public void onAttach(Context context){
@@ -95,7 +95,7 @@ public class SearchTrackFragment extends Fragment {
                 final String artist_name = item.artists.get(0).artist_name;
                 final String art_url = item.album.images.get(1).art_url;
                 // TODO: play in main activity
-                mSearchClickedListener.onSearchItemSelected(track_id, track_name, artist_name, art_url);
+                mSearchClickedListener.onSearchTrackItemSelected(track_id, track_name, artist_name, art_url);
             }
 
 
@@ -117,6 +117,7 @@ public class SearchTrackFragment extends Fragment {
 
     public static void update(SearchResult result){
         trackList = result.tracks.tracks;
+
     }
 
 

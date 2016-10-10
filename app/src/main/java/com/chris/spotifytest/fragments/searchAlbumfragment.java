@@ -15,8 +15,10 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.chris.spotifytest.OnSearchFinished;
+import com.chris.spotifytest.OnSearchItemSelectedListener;
 import com.chris.spotifytest.adapters.searchAlbumResultAdapter;
 import com.chris.spotifytest.dataTypes.Album;
+import com.chris.spotifytest.dataTypes.AlbumDetailed;
 import com.spotify.sdk.android.player.Config;
 import com.spotify.sdk.android.player.Player;
 import com.spotify.sdk.android.player.Spotify;
@@ -50,15 +52,13 @@ public class SearchAlbumFragment extends Fragment{
 
 
 
-    public interface OnSearchItemSelectedListener{
-        void onSearchItemSelected(String id, String track_name, String artist_name, String art_url);
-    }
+
 
     @Override
     public void onAttach(Context context){
         super.onAttach(context);
 
-        mSearchClickedListener = (OnSearchItemSelectedListener) listener;
+        mSearchClickedListener = (OnSearchItemSelectedListener) getActivity();
 
 
 
@@ -84,12 +84,15 @@ public class SearchAlbumFragment extends Fragment{
         tAdapter = new searchAlbumResultAdapter(albumList, new searchAlbumResultAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(Album item) {
-                Toast.makeText(getActivity().getBaseContext(), item.album_name, Toast.LENGTH_SHORT).show();}
+                Toast.makeText(getActivity().getBaseContext(), item.album_name, Toast.LENGTH_SHORT).show();
+                mSearchClickedListener.onSearchAlbumItemSelected(item.album_id, item.images.get(0).art_url);
+            }
 
         }, new searchAlbumResultAdapter.OnLongItemClickListener() {
             @Override
             public void onLongItemClick(Album item) {
-                Toast.makeText(getActivity().getBaseContext(), item.album_name, Toast.LENGTH_SHORT).show();
+
+                Toast.makeText(getActivity().getBaseContext(), item.album_id, Toast.LENGTH_SHORT).show();
             }
         });
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getActivity().getApplicationContext());

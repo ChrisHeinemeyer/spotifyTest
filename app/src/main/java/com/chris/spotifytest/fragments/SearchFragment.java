@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.PagerAdapter;
+import android.support.design.widget.TabLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -16,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.chris.spotifytest.OnFragmentChange;
 import com.chris.spotifytest.OnSearchFinished;
 import com.chris.spotifytest.adapters.SearchPagerAdapter;
 import com.chris.spotifytest.dataTypes.Album;
@@ -45,12 +47,16 @@ public class SearchFragment extends Fragment {
 
     private static final String CLIENT_ID = "cc42867f9fb24ed699f6ec68af1f448f";
     final String TYPE = "track,artist,album,playlist";
+    String TAG = this.getTag();
+    OnFragmentChange fragListener;
 
     FragmentActivity listener;
     ViewPager pager;
     @Override
     public void onAttach(Context context){
         super.onAttach(context);
+        fragListener = (OnFragmentChange) getActivity();
+        fragListener.appBarElevationNeeded(false);
 
     }
 
@@ -59,6 +65,8 @@ public class SearchFragment extends Fragment {
         // Defines the xml file for the fragment
         View result =  inflater.inflate(R.layout.pager, parent, false);
         pager = (ViewPager)result.findViewById(R.id.pager);
+        TabLayout tabs = (TabLayout) result.findViewById(R.id.tabs);
+        tabs.setupWithViewPager(pager);
 
 
 
@@ -70,6 +78,7 @@ public class SearchFragment extends Fragment {
     // Any view setup should occur here.  E.g., view lookups and attaching view listeners.
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
+
         String searchString = MainActivity.getEdtSearch().getText().toString();
 
         String token = MainActivity.getAccessToken();
@@ -86,9 +95,6 @@ public class SearchFragment extends Fragment {
                 SearchTrackFragment.update(result);
                 pager.setAdapter(buildAdapter());
 
-
-
-
             }
 
             @Override
@@ -97,6 +103,14 @@ public class SearchFragment extends Fragment {
             }
         });
 
+
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        fragListener.appBarElevationNeeded(false);
+        fragListener.appBarNeeded(true);
 
     }
 
