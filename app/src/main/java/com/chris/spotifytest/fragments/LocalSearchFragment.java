@@ -1,8 +1,15 @@
 package com.chris.spotifytest.fragments;
 
-import android.support.v4.app.Fragment;
+import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.Context;
+import android.database.Cursor;
+import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.support.annotation.NonNull;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
@@ -14,33 +21,28 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.chris.spotifytest.Activities.MainActivity;
 import com.chris.spotifytest.OnSearchItemSelectedListener;
-import com.spotify.sdk.android.player.Player;
-
-import java.util.List;
-
 import com.chris.spotifytest.R;
-import com.chris.spotifytest.dataTypes.spotify.SearchResult;
-import com.chris.spotifytest.dataTypes.spotify.Track;
-import com.squareup.picasso.Picasso;
+import com.chris.spotifytest.dataTypes.LocalTrack;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
 
 /**
- * Created by Chris on 2016-10-06.
+ * Created by Chris on 2016-10-24.
  */
 
-public class SearchTrackFragment extends Fragment {
-    // The onCreateView method is called when Fragment should create its View object hierarchy,
-    // either dynamically or via XML layout inflation.
+public class LocalSearchFragment extends Fragment {
+    private ArrayList<LocalTrack> trackList;
     private RecyclerView tRecyclerView;
-    private static Adapter tAdapter;
-    private static final String CLIENT_ID = "cc42867f9fb24ed699f6ec68af1f448f";
-    //    List<TrackInfo> resultsList = new ArrayList<TrackInfo>();
-    final String TYPE = "track,artist,album,playlist";
-    private Player mPlayer;
+    private Adapter tAdapter;
+    String searchString;
+    MediaPlayer mediaPlayer;
     static OnSearchItemSelectedListener mSearchClickedListener;
-
-
-    public static List<Track> trackList;
 
     @Override
     public void onAttach(Context context){
@@ -51,41 +53,62 @@ public class SearchTrackFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
         // Defines the xml file for the fragment
+        mediaPlayer = new MediaPlayer();
         return inflater.inflate(R.layout.fragment_search, parent, false);
 
 
     }
 
-    // This event is triggered soon after onCreateView().
-    // Any view setup should occur here.  E.g., view lookups and attaching view listeners.
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         // Setup any handles to view objects here
         // EditText etFoo = (EditText) view.findViewById(R.id.etFoo);
+        searchString = MainActivity.getEdtSearch().getText().toString();
+        trackList = new ArrayList<>();
+        getTracks();
         tRecyclerView = (RecyclerView) view.findViewById(R.id.rlv);
-        // Get the intent, verify the action and get the query
         tAdapter = new Adapter(trackList);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getActivity().getApplicationContext());
         tRecyclerView.setLayoutManager(mLayoutManager);
         tRecyclerView.setItemAnimator(new DefaultItemAnimator());
         tRecyclerView.setAdapter(tAdapter);
-
-
-
-
-        }
-
-    public static void update(SearchResult result){
-        trackList = result.tracks.tracks;
-
+        //tRecyclerView.setAdapter();
     }
 
+
+    public void getTracks(){
+        ContentResolver musicResolver = getActivity().getContentResolver();
+        Uri musicUri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+        Cursor musicCursor = musicResolver.query(musicUri, null, null, null, null);
+
+        if(musicCursor!=null && musicCursor.moveToFirst()){
+            //get columns
+            int titleColumn = musicCursor.getColumnIndex(android.provider.MediaStore.Audio.Media.TITLE);
+            int idColumn = musicCursor.getColumnIndex(android.provider.MediaStore.Audio.Media._ID);
+            int artistColumn = musicCursor.getColumnIndex(android.provider.MediaStore.Audio.Media.ARTIST);
+            int albumColumn = musicCursor.getColumnIndex(android.provider.MediaStore.Audio.Media.ALBUM);
+            //add songs to list
+            do {
+                long thisId = musicCursor.getLong(idColumn);
+                String thisTitle = musicCursor.getString(titleColumn);
+                String thisArtist = musicCursor.getString(artistColumn);
+                String thisAlbum = musicCursor.getString(albumColumn);
+                if(contains(thisTitle,searchString) || contains(thisArtist,searchString) || contains(thisAlbum, searchString)){
+                    trackList.add(new LocalTrack(thisId, thisTitle, thisArtist, thisAlbum));
+                }
+            }
+            while (musicCursor.moveToNext());
+        }
+    }
+    private boolean contains(String str1, String str2){
+        return str1.toLowerCase().contains(str2.toLowerCase());
+    }
     public class Adapter extends RecyclerView.Adapter<Adapter.MyViewHolder> {
 
-        protected List<Track> trackList;
+        protected ArrayList<LocalTrack> trackList;
 
 
-        public Adapter(List<Track> trackInfoList) {
+        public Adapter(ArrayList<LocalTrack> trackInfoList) {
             this.trackList = trackInfoList;
         }
 
@@ -96,7 +119,6 @@ public class SearchTrackFragment extends Fragment {
         public Adapter.MyViewHolder onCreateViewHolder(final ViewGroup parent, int viewType) {
             View itemView = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.search_result_row, parent, false);
-
             return new Adapter.MyViewHolder(itemView);
         }
 
@@ -130,47 +152,24 @@ public class SearchTrackFragment extends Fragment {
                 more_button.setOnClickListener(this);
             }
 
-            public void bind(final Track t){//, final OnItemClickListener listener, final OnLongItemClickListener longListener){
-                String artist_albumS = t.artists.get(0).artist_name+ " | " + t.album.album_name;
-                track.setText(t.track_name);
-                artist_album.setText(artist_albumS);
-
-                switch (t.album.images.size()){
-                    case 0:
-                        Picasso.with(itemView.getContext())
-                            .load(R.drawable.album_art_blank)
-                            .resize(200, 200)
-                            .into(album_art);
-                        break;
-                    case 1:
-                        Picasso.with(itemView.getContext())
-                                .load(t.album.images.get(0).art_url)
-                                .resize(200, 200)
-                                .into(album_art);
-                        break;
-                    default:
-                        Picasso.with(itemView.getContext())
-                                .load(t.album.images.get(1).art_url)
-                                .resize(200, 200)
-                                .into(album_art);
-                        break;
-
-                }
+            public void bind(final LocalTrack t){//, final OnItemClickListener listener, final OnLongItemClickListener longListener){
+                String artistAlbums = t.artist;// " | " + t.album;
+                track.setText(t.title);
+                artist_album.setText(artistAlbums);
             }
 
             @Override
             public void onClick(View v) {
-                List<Track> list = Adapter.this.trackList;
-                Track item = list.get(getAdapterPosition());
-                final String track_id = item.track_id;
-                final String track_name = item.track_name;
-                final String artist_name = item.artists.get(0).artist_name;
-                final String art_url = item.album.images.get(1).art_url;
+                ArrayList<LocalTrack> list = Adapter.this.trackList;
+                LocalTrack item = list.get(getAdapterPosition());
+                Uri uri = ContentUris.withAppendedId(
+                        android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                        item.id);
 
-                if (v.getId() == album_art.getId()){
-                    //   Toast.makeText(v.getContext(), "ITEM PRESSED = " + String.valueOf(getAdapterPosition()), Toast.LENGTH_SHORT).show();
+                final String track_name = item.title;
+                final String artist_name = item.artist;
 
-                } else if (v.getId() == more_button.getId()){
+              if (v.getId() == more_button.getId()){
                     PopupMenu popupMenu = new PopupMenu(v.getContext(), more_button);
                     getActivity().getMenuInflater().inflate(R.menu.popup_track, popupMenu.getMenu());
                     popupMenu.setOnMenuItemClickListener(this);
@@ -179,7 +178,7 @@ public class SearchTrackFragment extends Fragment {
                 } else {
                     //   Toast.makeText(v.getContext(), "ROW PRESSED = " + String.valueOf(getAdapterPosition()), Toast.LENGTH_SHORT).show();
 
-                    mSearchClickedListener.onSearchTrackItemSelected(track_id, track_name, artist_name, art_url, getAdapterPosition(), list);
+                    mSearchClickedListener.onLocalTrackItemSelected(uri, track_name, artist_name);
                 }
             }
 
@@ -187,7 +186,7 @@ public class SearchTrackFragment extends Fragment {
             public boolean onMenuItemClick(MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.queue:
-                        mSearchClickedListener.onSearchTrackItemMenuPressed(Adapter.this.trackList.get(getAdapterPosition()).track_id);
+                       // mSearchClickedListener.onSearchTrackItemMenuPressed(Adapter.this.trackList.get(getAdapterPosition()).track_id);
                         return true;
                     default:
                         return false;
@@ -196,9 +195,4 @@ public class SearchTrackFragment extends Fragment {
         }
     }
 
-
-
-    }
-
-
-
+}

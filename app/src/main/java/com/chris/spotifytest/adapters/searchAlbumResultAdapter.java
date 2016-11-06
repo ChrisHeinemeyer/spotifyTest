@@ -15,9 +15,8 @@ import android.widget.TextView;
 
 import com.chris.spotifytest.ApiClient;
 import com.chris.spotifytest.ApiInterface;
-import com.chris.spotifytest.dataTypes.Album;
-import com.chris.spotifytest.dataTypes.AlbumDetailed;
-import com.chris.spotifytest.dataTypes.SearchResult;
+import com.chris.spotifytest.dataTypes.spotify.Album;
+import com.chris.spotifytest.dataTypes.spotify.AlbumDetailed;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;

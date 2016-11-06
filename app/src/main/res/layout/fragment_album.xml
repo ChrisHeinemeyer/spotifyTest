@@ -22,7 +22,7 @@
             app:expandedTitleMarginStart="48dp"
             app:expandedTitleMarginEnd="64dp">
 
-            <com.chris.spotifytest.dataTypes.SquareImageView
+            <com.chris.spotifytest.dataTypes.spotify.SquareImageView
                 android:id="@+id/image"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

@@ -1,4 +1,4 @@
-package com.chris.spotifytest.dataTypes;
+package com.chris.spotifytest.dataTypes.spotify;
 
 /**
  * Created by Chris on 2016-09-14.

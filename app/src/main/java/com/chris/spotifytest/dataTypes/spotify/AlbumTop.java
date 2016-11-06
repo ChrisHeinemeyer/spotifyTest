@@ -1,4 +1,4 @@
-package com.chris.spotifytest.dataTypes;
+package com.chris.spotifytest.dataTypes.spotify;
 
 import com.google.gson.annotations.SerializedName;
 
@@ -7,8 +7,8 @@ import java.util.List;
 /**
  * Created by Chris on 2016-09-19.
  */
-public class ArtistTop {
-
+public class AlbumTop {
     @SerializedName("items")
-    public List<Artist> artists;
+    public List<Album> albums;
+
 }

@@ -8,11 +8,10 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.chris.spotifytest.R;
-import com.chris.spotifytest.dataTypes.Track;
+import com.chris.spotifytest.dataTypes.spotify.Track;
 
 import java.util.List;
 
@@ -29,7 +28,6 @@ public class albumViewTrackAdapter extends RecyclerView.Adapter<albumViewTrackAd
     public interface OnItemClickListener {
         void onItemClick(Track item);
     }
-
     public interface OnLongItemClickListener {
         void onLongItemClick(Track item);
     }
@@ -70,7 +68,7 @@ public class albumViewTrackAdapter extends RecyclerView.Adapter<albumViewTrackAd
 
     public static class MyViewHolder extends RecyclerView.ViewHolder  {
 
-        public TextView track, artist_album;
+        private TextView track, artist_album;
 
 
 

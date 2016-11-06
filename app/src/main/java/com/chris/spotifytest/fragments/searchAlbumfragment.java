@@ -1,6 +1,5 @@
 package com.chris.spotifytest.fragments;
 
-import android.app.Activity;
 import android.support.v4.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
@@ -8,33 +7,19 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.chris.spotifytest.OnSearchFinished;
 import com.chris.spotifytest.OnSearchItemSelectedListener;
 import com.chris.spotifytest.adapters.searchAlbumResultAdapter;
-import com.chris.spotifytest.dataTypes.Album;
-import com.chris.spotifytest.dataTypes.AlbumDetailed;
-import com.spotify.sdk.android.player.Config;
-import com.spotify.sdk.android.player.Player;
-import com.spotify.sdk.android.player.Spotify;
+import com.chris.spotifytest.dataTypes.spotify.Album;
 
 import java.util.List;
 
-import com.chris.spotifytest.Activities.MainActivity;
-import com.chris.spotifytest.ApiClient;
-import com.chris.spotifytest.ApiInterface;
 import com.chris.spotifytest.R;
-import com.chris.spotifytest.adapters.searchTrackResultAdapter;
-import com.chris.spotifytest.dataTypes.SearchResult;
-import com.chris.spotifytest.dataTypes.Track;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
+import com.chris.spotifytest.dataTypes.spotify.SearchResult;
 
 /**
  * Created by Chris on 2016-10-06.

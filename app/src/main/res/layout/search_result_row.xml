@@ -33,6 +33,14 @@
         android:contentDescription="album art picture"
         android:paddingEnd="30dp" />
 
+    <ImageView
+        android:id="@+id/buttonMore"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:paddingStart="8dp"
+        android:src="@drawable/ic_more_vert_black_24dp" />
 
 
 </RelativeLayout>

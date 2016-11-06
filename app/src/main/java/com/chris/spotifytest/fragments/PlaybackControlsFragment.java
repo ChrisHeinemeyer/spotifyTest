@@ -15,8 +15,8 @@ import com.chris.spotifytest.ApiClient;
 import com.chris.spotifytest.ApiInterface;
 import com.chris.spotifytest.OnPlaybackControlButtonPressed;
 import com.chris.spotifytest.R;
-import com.chris.spotifytest.dataTypes.AlbumDetailed;
-import com.chris.spotifytest.dataTypes.Track;
+import com.chris.spotifytest.dataTypes.spotify.AlbumDetailed;
+import com.chris.spotifytest.dataTypes.spotify.Track;
 import com.squareup.picasso.Picasso;
 
 import retrofit2.Call;
@@ -33,11 +33,13 @@ import static com.chris.spotifytest.R.id.album_art_image;
 public class PlaybackControlsFragment extends Fragment implements View.OnClickListener {
     static final String TAG = "ControlsFragment";
     private Track nowPlayingTrack;
-    private static ImageView nowPlayingImage;
-    private static ImageView pausePlay;
-    private static TextView nowPlayingTitle;
-    private static TextView nowPlayingArtist;
-    private static ImageView nextTrack;
+    private ImageView nowPlayingImage;
+    private ImageView pausePlay;
+
+    private TextView nowPlayingTitle;
+    private TextView nowPlayingArtist;
+    private ImageView nextTrack;
+    private ImageView prevTrack;
 
     public static String track_id;
     OnPlaybackControlButtonPressed mListener;
@@ -60,21 +62,27 @@ public class PlaybackControlsFragment extends Fragment implements View.OnClickLi
 
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
         // Defines the xml file for the fragment
+
         return inflater.inflate(R.layout.fragment_playback_controls, parent, false);
     }
     public void onViewCreated(View view, Bundle savedInstanceState){
         nowPlayingImage = (ImageView) getView().findViewById(album_art_image);
         nowPlayingTitle = (TextView) getView().findViewById(R.id.selected_track_title);
         nowPlayingArtist = (TextView) getView().findViewById(R.id.artist);
+
         pausePlay = (ImageView) getView().findViewById(R.id.play_pause);
         pausePlay.setOnClickListener(this);
 
         nextTrack = (ImageView) getView().findViewById(R.id.next_track);
         nextTrack.setOnClickListener(this);
-        nextTrack.setImageResource(R.drawable.ic_pause_black_24dp);
+
+        prevTrack = (ImageView) getView().findViewById(R.id.prev_track);
+        prevTrack.setOnClickListener(this);
+
 
     }
 
+    //when play pause button is pressed
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -90,18 +98,29 @@ public class PlaybackControlsFragment extends Fragment implements View.OnClickLi
 
     }
     public void onPlaybackPaused(){
+
         pausePlay.setImageResource(R.drawable.ic_play_arrow_black_24dp);
     }
     public void onPlaybackPlaying(){
+        prevTrack.setImageResource(R.drawable.ic_skip_previous_black_24dp);
+        nextTrack.setImageResource(R.drawable.ic_skip_next_black_24dp);
         pausePlay.setImageResource(R.drawable.ic_pause_black_24dp);
     }
     public void updateView(String id, String track_name, String artist_name, String art_url){
         Log.d(TAG, "updateView called");
         nowPlayingTitle.setText(track_name);
         nowPlayingArtist.setText(artist_name);
-        Picasso.with(getView().getContext())
-                .load(art_url)
-                .into(nowPlayingImage);
+        if(art_url == null){
+            Picasso.with(getView().getContext())
+                    .load(R.drawable.album_art_blank)
+                    .into(nowPlayingImage);
+
+        }else {
+            Picasso.with(getView().getContext())
+                    .load(art_url)
+                    .into(nowPlayingImage);
+
+        }
         track_id = id;
     }
 
@@ -113,12 +132,7 @@ public class PlaybackControlsFragment extends Fragment implements View.OnClickLi
             public void onResponse(Call<Track>call, Response<Track> response) {
                 Track result = response.body();
                 trackUpdated(result);
-                //mSearchFinishedListener.onSearchFinishedListener(result);
-
-
-
             }
-
             @Override
             public void onFailure(Call<Track>call, Throwable t) {
                 Log.d("a","faileda");
@@ -135,10 +149,6 @@ public class PlaybackControlsFragment extends Fragment implements View.OnClickLi
             public void onResponse(Call<AlbumDetailed>call, Response<AlbumDetailed> response) {
                 AlbumDetailed album = response.body();
                 updateView(result.track_id,result.track_name,result.artists.get(0).artist_name,album.images.get(1).art_url);
-                //mSearchFinishedListener.onSearchFinishedListener(result);
-
-
-
             }
 
             @Override

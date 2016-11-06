@@ -11,6 +11,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
+import com.chris.spotifytest.fragments.LocalSearchFragment;
 import com.chris.spotifytest.fragments.SearchAlbumFragment;
 import com.chris.spotifytest.fragments.SearchFragment;
 import com.chris.spotifytest.fragments.SearchTrackFragment;
@@ -25,14 +26,15 @@ public class SearchPagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public int getCount() {
-        return(2);
+        return(3);
     }
 
     @Override
     public Fragment getItem(int position) {
        switch(position){
            case 0: return new SearchTrackFragment();
-           default: return new SearchAlbumFragment();
+           case 1: return new SearchAlbumFragment();
+           default: return new LocalSearchFragment();
        }
     }
 
@@ -40,7 +42,8 @@ public class SearchPagerAdapter extends FragmentPagerAdapter {
     public String getPageTitle(int position) {
         switch(position){
             case 0: return "Tracks";
-            default: return "Albums";
+            case 1: return "Albums";
+            default: return "Local";
         }
     }
 }

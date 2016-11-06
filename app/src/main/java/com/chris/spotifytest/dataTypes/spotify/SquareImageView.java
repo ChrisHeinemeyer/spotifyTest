@@ -1,4 +1,4 @@
-package com.chris.spotifytest.dataTypes;
+package com.chris.spotifytest.dataTypes.spotify;
 
 import android.content.Context;
 import android.util.AttributeSet;
